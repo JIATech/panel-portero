@@ -23,11 +23,14 @@
       --card-border-light: #e2e8f0;
       --heading-color-dark: #90cdf4;
       --heading-color-light: #2b6cb0;
+      --modal-bg-dark: rgba(15, 23, 42, 0.95);
+      --modal-bg-light: rgba(252, 252, 252, 0.98);
+      --modal-overlay-dark: rgba(0, 0, 0, 0.8);
+      --modal-overlay-light: rgba(0, 0, 0, 0.7);
     }
 
     body {
       transition: background 0.5s ease-in-out, color 0.5s ease-in-out;
-
       margin: 0;
       height: 100vh;
       width: 100vw;
@@ -257,11 +260,17 @@
         margin: 0.4rem 0 0.2rem 0;
       }
     }
-    /* Botón de cambio de tema */
-    .theme-toggle {
+    /* Controles de tema y zoom */
+    .controls-container {
       position: fixed;
       top: 10px;
       right: 10px;
+      display: flex;
+      gap: 8px;
+      z-index: 1000;
+    }
+    
+    .control-button {
       width: 40px;
       height: 40px;
       border-radius: 50%;
@@ -274,19 +283,25 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      z-index: 1000;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
       transition: all 0.3s ease;
     }
     
-    .theme-toggle:hover {
+    .control-button:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
     
-    .theme-toggle svg {
+    .control-button svg {
       width: 20px;
       height: 20px;
+    }
+    
+    /* Tema claro para los controles */
+    body.light-theme .control-button {
+      background: rgba(229, 231, 235, 0.8);
+      border-color: rgba(43, 108, 176, 0.4);
+      color: var(--accent-color-light);
     }
     
     /* Estilos para tema claro */
@@ -364,8 +379,499 @@
       color: #fff;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
     }
+
+    /* Estilos para los modales */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--modal-overlay-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .modal-content {
+      background: var(--modal-bg-dark);
+      border-radius: 1rem;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+      padding: 2rem;
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      transform: scale(0.9);
+      opacity: 0;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+      border: 1px solid var(--card-border-dark);
+      backdrop-filter: blur(10px);
+    }
+
+    /* Animación cuando modal está activo */
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    /* Botón para cerrar el modal */
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(26, 32, 51, 0.7);
+      border: 1px solid rgba(66, 153, 225, 0.4);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .modal-close:hover {
+      transform: rotate(90deg);
+      background: rgba(66, 153, 225, 0.7);
+    }
+
+    /* Estilos para contenido del modal */
+    .modal-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--heading-color-dark);
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid var(--accent-color-dark);
+      padding-bottom: 0.8rem;
+      text-align: center;
+    }
+
+    /* Estilos del modal para tema claro */
+    body.light-theme .modal-overlay {
+      background-color: var(--modal-overlay-light);
+    }
+
+    body.light-theme .modal-content {
+      background: var(--modal-bg-light);
+      border-color: var(--card-border-light);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    }
+
+    body.light-theme .modal-close {
+      background: rgba(229, 231, 235, 0.9);
+      border-color: rgba(43, 108, 176, 0.5);
+      color: var(--accent-color-light);
+    }
+
+    body.light-theme .modal-close:hover {
+      background: rgba(43, 108, 176, 0.3);
+    }
+
+    body.light-theme .modal-title {
+      color: var(--heading-color-light);
+      border-bottom-color: var(--accent-color-light);
+    }
+    
+    /* Clases para elementos clickeables que abren modales */
+    .clickable {
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+    }
+
+    .clickable:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 7px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .clickable::after {
+      content: '🔍';
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(66, 153, 225, 0.8);
+      color: white;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    .clickable:hover::after {
+      opacity: 1;
+    }
+
+    /* Modal específico para imagen */
+    .img-modal .modal-content {
+      padding: 1rem;
+    }
+
+    .img-modal-img {
+      max-width: 100%;
+      max-height: 80vh;
+      border-radius: 0.5rem;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .img-caption {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      color: var(--text-color-dark);
+    }
+
+    body.light-theme .img-caption {
+      color: var(--text-color-light);
+    }
+
+    /* Animación de pulsación para elementos clickeables */
+    @keyframes pulse-indicator {
+      0% { box-shadow: 0 0 0 0 rgba(66, 153, 225, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(66, 153, 225, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(66, 153, 225, 0); }
+    }
+
+    /* Modal para contactos */
+    .contacts-modal {
+      width: 90%;
+      max-width: 600px;
+    }
+
+    .contact-card {
+      background: rgba(26, 32, 51, 0.7);
+      border-radius: 1rem;
+      border: 1px solid var(--card-border-dark);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .contact-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .contact-header {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--heading-color-dark);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--accent-color-dark);
+    }
+
+    .contact-phone {
+      font-size: 1.3rem;
+      color: var(--accent-color-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .contact-details {
+      font-size: 1.1rem;
+      color: var(--text-color-dark);
+    }
+
+    .contact-label {
+      color: var(--accent-color-dark);
+      font-weight: 600;
+    }
+
+    /* Estilo adicional para modo kiosco */
+    body {
+      overflow: auto !important; /* Permitir scroll en modo kiosco */
+    }
+    
+    /* Estilo para indicador de zoom actual */
+    .zoom-indicator {
+      position: fixed;
+      bottom: 15px;
+      right: 15px;
+      background: rgba(26, 32, 51, 0.7);
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 2000;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(66, 153, 225, 0.4);
+    }
+    
+    body.light-theme .zoom-indicator {
+      background: rgba(229, 231, 235, 0.8);
+      color: var(--accent-color-light);
+      border-color: rgba(43, 108, 176, 0.4);
+    }
+    
+    .zoom-indicator.show {
+      opacity: 1;
+    }
   </style>
+</head>
+<body>
+  <!-- Controles (tema y zoom) -->
+  <div class="controls-container">
+    <div id="zoomOut" class="control-button zoom-out" title="Reducir zoom">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+    </div>
+    <div id="zoomIn" class="control-button zoom-in" title="Aumentar zoom">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+    </div>
+    <div id="themeToggle" class="control-button theme-toggle" title="Cambiar tema">
+      <span id="theme-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </span>
+    </div>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="panel">
+    <div class="content-row">
+      <div class="video-box">
+        <div class="phones-pro" style="display: flex; flex-direction: column; gap: 0.9rem; align-items: stretch; width: 100%; max-width: 440px; position: relative;">
+          <div style="font-size: 1.2rem; color: #90cdf4; font-weight: 800; margin-bottom: 0.6rem; text-align: center; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); letter-spacing: 0.5px; position: relative; z-index: 2;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: -0.2rem; margin-right: 0.3rem;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            <span id="openContactsModal" class="clickable" style="display: inline-block; padding: 5px 10px; border-radius: 8px;">Números de contacto</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <div id="infraCard" class="clickable" style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 0.8rem; padding: 1rem 1.2rem;">
+              <div style="font-size: 1.1rem; color: #222; font-weight: 800; margin-bottom: 0.3rem;">
+                Infraestructura y Sistemas DTI
+              </div>
+              <div style="color: #225ea8; font-size: 1.15rem; font-weight: 700;">
+                Teléfono: <span style="font-weight: 900;">429-3800</span>
+              </div>
+              <div style="color: #444; font-size: 1.05rem; margin-top: 0.15rem;">
+                <span style="color: #225ea8; font-weight: 700;">Internos:</span>
+                <span style="margin-left: 0.5rem;"><br>Infraestructura: <b>83836</b> &nbsp;|&nbsp; Sistemas: <b>83925</b></span>
+              </div>
+            </div>
+            <div id="adminCard" class="clickable" style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 0.8rem; padding: 1rem 1.2rem;">
+              <div style="font-size: 1.1rem; color: #222; font-weight: 800; margin-bottom: 0.3rem;">
+                Administración y Soporte DTI
+              </div>
+              <div style="color: #225ea8; font-size: 1.15rem; font-weight: 700;">
+                Teléfono: <span style="font-weight: 900;">429-3800</span>
+              </div>
+              <div style="color: #444; font-size: 1.05rem; margin-top: 0.15rem;">
+                <span style="color: #225ea8; font-weight: 700;">Internos:</span>
+                <span style="margin-left: 0.5rem;"><br>Soporte: <b>93821</b> &nbsp;|&nbsp; Administración: <b>93971</b></span>
+              </div>
+            </div>
+          </div>
+          <div style="width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 0.6rem;">
+            <img id="locationImg" src="img.png" alt="Ubicación de la puerta correcta" class="clickable" style="max-width: 370px; width: 100%; border-radius: 0.7rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4); border: 1px solid rgba(66, 153, 225, 0.4); filter: brightness(0.95);" />
+          </div>
+        </div>
+      </div>
+      <div class="message-box">
+        <div style="position: absolute; top: 40px; right: 50px; opacity: 0.04; z-index: 0;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
+        </div>
+        <div class="icon" style="color:#4299e1; text-shadow: 0 0 20px rgba(66, 153, 225, 0.8);">
+          <svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+        </div>
+        <div class="main" style="text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); color: #90cdf4; position: relative; z-index: 1;">
+          <span style="font-weight: 800;">Dirección de Tecnología Informática</span> <br>
+          <div style="width: 80px; height: 3px; background: linear-gradient(90deg, #3182ce, #63b3ed); margin: 0.8rem auto; border-radius: 2px;"></div>
+        </div>
+        <div class="info1" style="color: #ffffff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);"> Si necesita asistencia con <br>
+          <b style="color: #fff; background: linear-gradient(90deg, #3182ce, #4299e1); padding: 0.1rem 0.4rem; border-radius: 3px; display: inline-block; margin: 0.2rem 0; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);">Tokens, Tonners, E-mails o GDEBA</b>, <br /> por favor diríjase a la oficina de enfrente.</div>
+        <div class="destino" style="color: #90cdf4; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);">Administración & Soporte DTI</div>
+        <span class="arrow" aria-label="Flecha a la izquierda" style="color: #4299e1; text-shadow: 0 0 12px rgba(66, 153, 225, 0.6);">&#8592;</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modales -->
+  <!-- Modal para la imagen -->
+  <div id="imageModal" class="modal-overlay img-modal">
+    <div class="modal-content">
+      <div class="modal-close" onclick="closeModal('imageModal')">✕</div>
+      <img class="img-modal-img" src="img.png" alt="Ubicación de la puerta correcta">
+      <div class="img-caption">Referencia visual de la ubicación de la oficina</div>
+    </div>
+  </div>
+
+  <!-- Modal para contactos -->
+  <div id="contactsModal" class="modal-overlay">
+    <div class="modal-content contacts-modal">
+      <div class="modal-close" onclick="closeModal('contactsModal')">✕</div>
+      <div class="modal-title">Información de Contacto DTI</div>
+      
+      <div class="contact-card">
+        <div class="contact-header">Infraestructura y Sistemas DTI</div>
+        <div class="contact-phone">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: -0.1rem; margin-right: 0.3rem;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+          Teléfono: <span style="font-weight: 900;">429-3800</span>
+        </div>
+        <div class="contact-details">
+          <span class="contact-label">Internos:</span><br>
+          • Infraestructura: <b>83836</b><br>
+          • Sistemas: <b>83925</b>
+        </div>
+      </div>
+      
+      <div class="contact-card">
+        <div class="contact-header">Administración y Soporte DTI</div>
+        <div class="contact-phone">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: -0.1rem; margin-right: 0.3rem;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+          Teléfono: <span style="font-weight: 900;">429-3800</span>
+        </div>
+        <div class="contact-details">
+          <span class="contact-label">Internos:</span><br>
+          • Soporte: <b>93821</b><br>
+          • Administración: <b>93971</b>
+        </div>
+      </div>
+      
+      <div class="contact-card">
+        <div class="contact-header">Horarios de Atención</div>
+        <div class="contact-details">
+          <span class="contact-label">Lunes a Viernes:</span><br>
+          • 8:00 a 16:00 hs
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para el primer card de contacto -->
+  <div id="infraModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-close" onclick="closeModal('infraModal')">✕</div>
+      <div class="modal-title">Infraestructura y Sistemas DTI</div>
+      <div class="contact-card" style="animation: fadeIn 0.5s ease;">
+        <div class="contact-phone">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: -0.1rem; margin-right: 0.3rem;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+          Teléfono: <span style="font-weight: 900;">429-3800</span>
+        </div>
+        <div class="contact-details" style="margin-top: 1rem;">
+          <span class="contact-label">Internos:</span><br>
+          • Infraestructura: <b>83836</b><br>
+          • Sistemas: <b>83925</b>
+        </div>
+        <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(66, 153, 225, 0.3);">
+          <span class="contact-label" style="font-size: 1.1rem; display: block; margin-bottom: 0.8rem;">Servicios que brinda:</span>
+          <ul style="padding-left: 1.2rem; color: var(--text-color-dark);">
+            <li style="margin-bottom: 0.5rem;">Gestión de infraestructura tecnológica</li>
+            <li style="margin-bottom: 0.5rem;">Mantenimiento de servidores</li>
+            <li style="margin-bottom: 0.5rem;">Soporte de sistemas internos</li>
+            <li style="margin-bottom: 0.5rem;">Administración de redes</li>
+            <li>Desarrollo y mantenimiento de aplicaciones</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para el segundo card de contacto -->
+  <div id="adminModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-close" onclick="closeModal('adminModal')">✕</div>
+      <div class="modal-title">Administración y Soporte DTI</div>
+      <div class="contact-card" style="animation: fadeIn 0.5s ease;">
+        <div class="contact-phone">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: -0.1rem; margin-right: 0.3rem;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+          Teléfono: <span style="font-weight: 900;">429-3800</span>
+        </div>
+        <div class="contact-details" style="margin-top: 1rem;">
+          <span class="contact-label">Internos:</span><br>
+          • Soporte: <b>93821</b><br>
+          • Administración: <b>93971</b>
+        </div>
+        <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(66, 153, 225, 0.3);">
+          <span class="contact-label" style="font-size: 1.1rem; display: block; margin-bottom: 0.8rem;">Servicios que brinda:</span>
+          <ul style="padding-left: 1.2rem; color: var(--text-color-dark);">
+            <li style="margin-bottom: 0.5rem;">Asistencia con Tokens</li>
+            <li style="margin-bottom: 0.5rem;">Reposición de Toners</li>
+            <li style="margin-bottom: 0.5rem;">Configuración de E-mails</li>
+            <li style="margin-bottom: 0.5rem;">Soporte para GDEBA</li>
+            <li style="margin-bottom: 0.5rem;">Soporte técnico general</li>
+            <li>Trámites administrativos</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // Variables para control de zoom
+    let currentZoom = 1;
+    const minZoom = 0.6;
+    const maxZoom = 1.4;
+    const zoomStep = 0.1;
+
+    // Aplicar cambios de zoom a la página
+    function applyZoom() {
+      // Aplicar zoom a todo el contenido
+      document.body.style.transform = `scale(${currentZoom})`;
+      document.body.style.transformOrigin = 'center top';
+      
+      // Ajustar tamaño del contenedor principal para evitar scrollbars innecesarios
+      if (currentZoom < 1) {
+        document.body.style.height = `${100 / currentZoom}vh`;
+        document.body.style.width = `${100 / currentZoom}vw`;
+      } else {
+        document.body.style.height = '100vh';
+        document.body.style.width = '100vw';
+      }
+      
+      // Guardar valor de zoom en localStorage
+      localStorage.setItem('zoom', currentZoom);
+      
+      // Actualizar indicador de zoom
+      const zoomPercent = Math.round(currentZoom * 100);
+      const zoomIndicator = document.getElementById('zoomIndicator');
+      zoomIndicator.textContent = `Zoom: ${zoomPercent}%`;
+      
+      // Mostrar el indicador y ocultarlo después de 2 segundos
+      zoomIndicator.classList.add('show');
+      clearTimeout(window.zoomTimeout);
+      window.zoomTimeout = setTimeout(() => {
+        zoomIndicator.classList.remove('show');
+      }, 2000);
+    }
+
+    // Función para aumentar zoom
+    function zoomIn() {
+      if (currentZoom < maxZoom) {
+        currentZoom += zoomStep;
+        currentZoom = Math.min(maxZoom, currentZoom);
+        applyZoom();
+      }
+    }
+
+    // Función para disminuir zoom
+    function zoomOut() {
+      if (currentZoom > minZoom) {
+        currentZoom -= zoomStep;
+        currentZoom = Math.max(minZoom, currentZoom);
+        applyZoom();
+      }
+    }
+
     // Función para cambiar entre temas
     function toggleTheme() {
       const body = document.body;
@@ -421,7 +927,53 @@
         });
       }
     }
-    
+
+    // Funciones para manejar modales
+    function openModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.add('active');
+        // Prevenir scroll en el body mientras el modal está abierto
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.remove('active');
+        // Restaurar scroll en el body
+        document.body.style.overflow = '';
+      }
+    }
+
+    // Cerrar modal al hacer clic fuera del contenido
+    document.querySelectorAll('.modal-overlay').forEach(modal => {
+      modal.addEventListener('click', function(event) {
+        if (event.target === this) {
+          this.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      });
+    });
+
+    // Event listeners para abrir modales
+    document.getElementById('locationImg').addEventListener('click', function() {
+      openModal('imageModal');
+    });
+
+    document.getElementById('openContactsModal').addEventListener('click', function() {
+      openModal('contactsModal');
+    });
+
+    document.getElementById('infraCard').addEventListener('click', function() {
+      openModal('infraModal');
+    });
+
+    document.getElementById('adminCard').addEventListener('click', function() {
+      openModal('adminModal');
+    });
+
     // Ejecutar una vez al cargar la página para asegurar los colores correctos
     window.onload = function() {
       const savedTheme = localStorage.getItem('theme');
@@ -472,74 +1024,68 @@
         themeIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
         // Modo oscuro por defecto, no necesita ajustes adicionales
       }
+
+      // Recuperar y aplicar zoom guardado
+      const savedZoom = localStorage.getItem('zoom');
+      if (savedZoom) {
+        currentZoom = parseFloat(savedZoom);
+        applyZoom();
+      }
+
+      // Agregar pulsación sutil a elementos clickeables
+      const clickables = document.querySelectorAll('.clickable');
+      clickables.forEach(element => {
+        // Agregar animación de pulso suave
+        element.style.transition = 'all 0.3s ease';
+        element.style.transform = 'scale(1)';
+        
+        // Resaltar elementos clickeables al pasar el cursor
+        element.addEventListener('mouseenter', function() {
+          this.style.transform = 'scale(1.03)';
+        });
+        
+        element.addEventListener('mouseleave', function() {
+          this.style.transform = 'scale(1)';
+        });
+      });
+
+      // Configurar event listeners para botones de zoom y tema
+      document.getElementById('zoomIn').addEventListener('click', zoomIn);
+      document.getElementById('zoomOut').addEventListener('click', zoomOut);
+      document.getElementById('themeToggle').addEventListener('click', toggleTheme);
     }
+
+    // Event listeners para zoom con teclado
+    document.addEventListener('keydown', function(event) {
+      // Cerrar modal con ESC
+      if (event.key === 'Escape') {
+        const activeModals = document.querySelectorAll('.modal-overlay.active');
+        activeModals.forEach(modal => {
+          modal.classList.remove('active');
+          document.body.style.overflow = '';
+        });
+      }
+      
+      // Zoom con teclas + y -
+      if (event.key === '+' || event.key === '=') {
+        zoomIn();
+      } else if (event.key === '-' || event.key === '_') {
+        zoomOut();
+      }
+    });
+    
+    // Soporte para zoom con rueda del mouse + tecla Ctrl
+    document.addEventListener('wheel', function(event) {
+      if (event.ctrlKey) {
+        event.preventDefault(); // Prevenir zoom del navegador
+        
+        if (event.deltaY < 0) {
+          zoomIn();
+        } else {
+          zoomOut();
+        }
+      }
+    }, { passive: false });
   </script>
-</head>
-<body>
-  <div class="theme-toggle" onclick="toggleTheme()">
-    <span id="theme-icon">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-    </span>
-  </div>
-  <div class="panel">
-    <div class="content-row">
-      <div class="video-box">
-        <div class="phones-pro" style="display: flex; flex-direction: column; gap: 0.9rem; align-items: stretch; width: 100%; max-width: 440px; position: relative;">
-          <div style="font-size: 1.2rem; color: #90cdf4; font-weight: 800; margin-bottom: 0.6rem; text-align: center; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); letter-spacing: 0.5px; position: relative; z-index: 2;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: -0.2rem; margin-right: 0.3rem;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-            Números de contacto
-          </div>
-          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-            <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 0.8rem; padding: 1rem 1.2rem;">
-              <div style="font-size: 1.1rem; color: #222; font-weight: 800; margin-bottom: 0.3rem;">
-                Infraestructura y Sistemas DTI
-              </div>
-              <div style="color: #225ea8; font-size: 1.15rem; font-weight: 700;">
-                Teléfono: <span style="font-weight: 900;">429-3800</span>
-              </div>
-              <div style="color: #444; font-size: 1.05rem; margin-top: 0.15rem;">
-                <span style="color: #225ea8; font-weight: 700;">Internos:</span>
-                <span style="margin-left: 0.5rem;"><br>Infraestructura: <b>83836</b> &nbsp;|&nbsp; Sistemas: <b>83925</b></span>
-              </div>
-            </div>
-            <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 0.8rem; padding: 1rem 1.2rem;">
-              <div style="font-size: 1.1rem; color: #222; font-weight: 800; margin-bottom: 0.3rem;">
-                Administración y Soporte DTI
-              </div>
-              <div style="color: #225ea8; font-size: 1.15rem; font-weight: 700;">
-                Teléfono: <span style="font-weight: 900;">429-3800</span>
-              </div>
-              <div style="color: #444; font-size: 1.05rem; margin-top: 0.15rem;">
-                <span style="color: #225ea8; font-weight: 700;">Internos:</span>
-                <span style="margin-left: 0.5rem;"><br>Soporte: <b>93821</b> &nbsp;|&nbsp; Administración: <b>93971</b></span>
-              </div>
-            </div>
-          </div>
-          <div style="width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 0.6rem;">
-            <img src="img.png" alt="Ubicación de la puerta correcta" style="max-width: 370px; width: 100%; border-radius: 0.7rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4); border: 1px solid rgba(66, 153, 225, 0.4); filter: brightness(0.95);" />
-            <!-- <div style="font-size: 1.08rem; color: #e2e8f0; margin-top: 0.3rem; text-align: center;">
-              Referencia visual de la puerta correcta
-            </div> -->
-          </div>
-        </div>
-      </div>
-      <div class="message-box">
-        <div style="position: absolute; top: 40px; right: 50px; opacity: 0.04; z-index: 0;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
-        </div>
-        <div class="icon" style="color:#4299e1; text-shadow: 0 0 20px rgba(66, 153, 225, 0.8);">
-          <svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-        </div>
-        <div class="main" style="text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); color: #90cdf4; position: relative; z-index: 1;">
-          <span style="font-weight: 800;">Dirección de Tecnología Informática</span> <br>
-          <div style="width: 80px; height: 3px; background: linear-gradient(90deg, #3182ce, #63b3ed); margin: 0.8rem auto; border-radius: 2px;"></div>
-        </div>
-        <div class="info1" style="color: #ffffff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);"> Si necesita asistencia con <br>
-          <b style="color: #fff; background: linear-gradient(90deg, #3182ce, #4299e1); padding: 0.1rem 0.4rem; border-radius: 3px; display: inline-block; margin: 0.2rem 0; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);">Tokens, Tonners, E-mails o GDEBA</b>, <br /> por favor diríjase a la oficina de enfrente.</div>
-        <div class="destino" style="color: #90cdf4; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);">Administración & Soporte DTI</div>
-        <span class="arrow" aria-label="Flecha a la izquierda" style="color: #4299e1; text-shadow: 0 0 12px rgba(66, 153, 225, 0.6);">&#8592;</span>
-      </div>
-    </div>
-  </div>
 </body>
 </html>
