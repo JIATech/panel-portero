@@ -379,6 +379,57 @@
       color: #fff;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
     }
+    
+    /* Estilos para botón de audio */
+    .audio-button {
+      position: relative;
+      display: inline-flex;
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+      background: rgba(66, 153, 225, 0.8);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      z-index: 100;
+    }
+    
+    .audio-button:hover {
+      transform: scale(1.15);
+      background: rgba(49, 130, 206, 0.9);
+    }
+    
+    .audio-button.playing {
+      animation: pulse-audio 2s infinite;
+    }
+    
+    @keyframes pulse-audio {
+      0% {
+        box-shadow: 0 0 0 0 rgba(66, 153, 225, 0.7);
+      }
+      70% {
+        box-shadow: 0 0 0 10px rgba(66, 153, 225, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(66, 153, 225, 0);
+      }
+    }
+    
+    body.light-theme .audio-button {
+      background: rgba(43, 108, 176, 0.8);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(226, 232, 240, 0.5);
+    }
+    
+    body.light-theme .audio-button:hover {
+      background: rgba(43, 108, 176, 0.9);
+    }
 
     /* Estilos para los modales */
     .modal-overlay {
@@ -697,8 +748,14 @@
           <span style="font-weight: 800;">Dirección de Tecnología Informática</span> <br>
           <div style="width: 80px; height: 3px; background: linear-gradient(90deg, #3182ce, #63b3ed); margin: 0.8rem auto; border-radius: 2px;"></div>
         </div>
-        <div class="info1" style="color: #ffffff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);"> Si necesita asistencia con <br>
-          <b style="color: #fff; background: linear-gradient(90deg, #3182ce, #4299e1); padding: 0.1rem 0.4rem; border-radius: 3px; display: inline-block; margin: 0.2rem 0; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);">Tokens, Tonners, E-mails o GDEBA</b>, <br /> por favor diríjase a la oficina de enfrente.</div>
+        <div style="display: flex; flex-direction: column; align-items: center; position: relative;">
+          <div class="audio-button" id="playAudio" title="Escuchar mensaje de audio" style="margin: 0.5rem auto;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+          </div>
+          <div class="info1" style="color: #ffffff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);"> Si necesita asistencia con <br>
+            <b style="color: #fff; background: linear-gradient(90deg, #3182ce, #4299e1); padding: 0.1rem 0.4rem; border-radius: 3px; display: inline-block; margin: 0.2rem 0; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);">Tokens, Tonners, E-mails o GDEBA</b>, <br /> por favor diríjase a la oficina de enfrente.
+          </div>
+        </div>
         <div class="destino" style="color: #90cdf4; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);">Administración & Soporte DTI</div>
         <span class="arrow" aria-label="Flecha a la izquierda" style="color: #4299e1; text-shadow: 0 0 12px rgba(66, 153, 225, 0.6);">&#8592;</span>
       </div>
@@ -1086,6 +1143,50 @@
         }
       }
     }, { passive: false });
+    
+    // Funcionalidad del botón de audio
+    const audioButton = document.getElementById('playAudio');
+    const audioPlayer = new Audio('mensaje.mp3');
+    
+    // Mensaje que será leído por el audio:
+    // "Dirección de Tecnología Informática Si necesita asistencia con Tokens, Tonners, E-mails o GDEBA, 
+    // por favor diríjase a la oficina de enfrente. Administración & Soporte DTI. Muchas Gracias."
+    
+    audioButton.addEventListener('click', function() {
+      if (audioPlayer.paused) {
+        audioPlayer.play()
+          .then(() => {
+            // Reproducción iniciada correctamente
+            audioButton.classList.add('playing');
+            // Cambiar ícono a pausar
+            audioButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
+          })
+          .catch(error => {
+            console.error('Error al reproducir el audio:', error);
+            alert('No se pudo reproducir el audio. Por favor, asegúrese de tener el archivo mensaje.mp3 en el servidor.');
+          });
+      } else {
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+        audioButton.classList.remove('playing');
+        
+        // Restaurar ícono original
+        audioButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
+      }
+    });
+    
+    // Restaurar ícono cuando el audio termina
+    audioPlayer.addEventListener('ended', function() {
+      audioButton.classList.remove('playing');
+      audioButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
+    });
+    
+    // Manejar errores de carga de audio
+    audioPlayer.addEventListener('error', function() {
+      console.error('Error al cargar el archivo de audio');
+      alert('No se pudo cargar el archivo de audio mensaje.mp3');
+      audioButton.classList.remove('playing');
+    });
   </script>
 </body>
 </html>
